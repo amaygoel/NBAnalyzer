@@ -10,8 +10,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -25,6 +23,10 @@ venv/
 .venv/
 ENV/
 env/
+
+# Python build directories (but not Next.js src/lib)
+api/lib/
+api/lib64/
 
 # Node.js
 node_modules/
