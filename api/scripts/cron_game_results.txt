@@ -1,0 +1,38 @@
+# NBAnalyzer - Daily Game Result Updates
+# Updates completed game scores throughout the day
+# Frequent updates during game hours (7 PM - 1 AM ET) to quickly mark games as completed
+
+# Morning updates
+0 6 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+0 12 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+
+# Pre-game update
+0 18 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+
+# GAME HOURS - Every 20 minutes from 7 PM to 1 AM ET (13 updates)
+0 19 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+20 19 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+40 19 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+
+0 20 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+20 20 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+40 20 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+
+0 21 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+20 21 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+40 21 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+
+0 22 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+20 22 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+40 22 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+
+0 23 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+20 23 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+40 23 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+
+0 0 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+20 0 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+40 0 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh
+
+# Final update at 1 AM
+0 1 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/update_game_results_cron.sh

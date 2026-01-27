@@ -1,0 +1,15 @@
+# NBAnalyzer - Automated Odds Fetching
+# Runs 4 times per day to update betting lines
+# Total: ~120 API calls/month (well under 500 limit)
+
+# 8 AM ET - Opening lines
+0 8 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/fetch_odds_cron.sh
+
+# 2 PM ET - Mid-day updates
+0 14 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/fetch_odds_cron.sh
+
+# 5 PM ET - Pre-game lines (most games start 7-10 PM)
+0 17 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/fetch_odds_cron.sh
+
+# 10 PM ET - Late lines for west coast games
+0 22 * * * /Users/amaygoel/Desktop/Projects/NBAnalyzer/api/scripts/fetch_odds_cron.sh
