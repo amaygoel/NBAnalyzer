@@ -41,3 +41,10 @@ ENV/
 
 # Logs
 *.log
+
+# ML data files (generated, don't commit large CSVs)
+api/data/*.csv
+api/data/*.parquet
+
+# But DO commit model artifacts
+!api/src/nb_analyzer/ml/artifacts/*

@@ -1,0 +1,50 @@
+{
+  "trained_at": "2026-01-29T13:25:39.951091",
+  "feature_columns": [
+    "home_win_pct_to_date",
+    "away_win_pct_to_date",
+    "win_pct_diff",
+    "home_last10_margin",
+    "away_last10_margin",
+    "last10_margin_diff",
+    "home_home_margin_to_date",
+    "away_away_margin_to_date",
+    "rest_diff",
+    "home_b2b",
+    "away_b2b"
+  ],
+  "target_column": "y_margin",
+  "model_type": "Ridge",
+  "best_alpha": 0.1,
+  "metrics": {
+    "train": {
+      "mae": 10.752000457995072,
+      "rmse": 13.708908121392485,
+      "direction_accuracy": 0.6361788617886179,
+      "n_samples": 2460
+    },
+    "val": {
+      "mae": 11.18767330805869,
+      "rmse": 14.327346914063563,
+      "direction_accuracy": 0.6669387755102041,
+      "n_samples": 1225
+    },
+    "test": {
+      "mae": 11.40915419536249,
+      "rmse": 14.438887041993988,
+      "direction_accuracy": 0.6101449275362318,
+      "n_samples": 690
+    }
+  },
+  "train_seasons": [
+    "2022-23",
+    "2023-24"
+  ],
+  "val_seasons": [
+    "2024-25"
+  ],
+  "test_seasons": [
+    "2025-26"
+  ],
+  "n_features": 11
+}
