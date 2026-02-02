@@ -109,30 +109,15 @@ export default function WeeklyGamesTabs({ data }: WeeklyGamesTabsProps) {
   const liveGames = categorizedGames.filter((g) => !g.is_completed && g.isLive);
   const completedGames = categorizedGames.filter((g) => g.is_completed);
 
-  // Sort upcoming games (with recommendations first)
-  const upcomingWithRecs = upcomingGames.filter((g) => g.recommendations_count > 0);
-  const upcomingWithoutRecs = upcomingGames.filter((g) => g.recommendations_count === 0);
-
   return (
     <div>
-      {/* Week header */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-slate-900">
-          This Week&apos;s Games
-        </h2>
-        <p className="text-slate-500 text-sm mt-1">
-          {data.total_games} games total
-        </p>
-      </div>
-
-      {/* Tabs */}
-      <div className="mb-8">
-        <div className="border-b border-slate-200">
-          <div className="flex gap-1 overflow-x-auto">
+      {/* Tabs with backdrop */}
+      <div className="mb-8 -mx-4 sm:mx-0">
+        <div className="bg-white/80 backdrop-blur-md shadow-sm border border-slate-200/50 rounded-lg overflow-hidden">
+          <div className="flex gap-1 overflow-x-auto px-4 sm:px-0">
             {data.days.map((day, index) => {
               const tabDate = formatTabDate(day.date);
               const isSelected = selectedDayIndex === index;
-              const hasInsights = day.games.some((g) => g.recommendations_count > 0);
 
               return (
                 <button
@@ -148,12 +133,7 @@ export default function WeeklyGamesTabs({ data }: WeeklyGamesTabsProps) {
                     }
                   `}
                 >
-                  <div className="flex items-center gap-2">
-                    <span>{tabDate.full}</span>
-                    {hasInsights && (
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                    )}
-                  </div>
+                  <span>{tabDate.full}</span>
                   <div className="text-xs text-slate-400 mt-0.5">
                     {day.games_count} {day.games_count === 1 ? "game" : "games"}
                   </div>
@@ -166,22 +146,15 @@ export default function WeeklyGamesTabs({ data }: WeeklyGamesTabsProps) {
 
       {/* Selected day content */}
       <div>
-        {/* Day header */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-slate-900">
-            {formatDate(selectedDay.date)}
-            <span className="text-slate-400 font-normal ml-2 text-sm">
-              {selectedDay.date}
+        {/* Live indicator if applicable */}
+        {isToday && liveGames.length > 0 && (
+          <div className="mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            <span className="text-sm font-medium text-red-600">
+              {liveGames.length} {liveGames.length === 1 ? 'game' : 'games'} live now
             </span>
-          </h3>
-          <p className="text-slate-500 text-sm mt-1">
-            {selectedDay.games_count} games
-            {isToday && liveGames.length > 0 && (
-              <span className="text-red-600 font-medium"> · {liveGames.length} live</span>
-            )}
-            {(isToday || isTomorrow) && upcomingWithRecs.length > 0 && ` · ${upcomingWithRecs.length} with insights`}
-          </p>
-        </div>
+          </div>
+        )}
 
         {/* Future days (2+ days out) - Simple schedule view */}
         {isFuture && (
@@ -216,31 +189,11 @@ export default function WeeklyGamesTabs({ data }: WeeklyGamesTabsProps) {
         {/* Today & Tomorrow: Show full game cards with odds */}
         {(isToday || isTomorrow) && (
           <>
-            {/* Upcoming games with recommendations */}
-            {upcomingWithRecs.length > 0 && (
+            {/* Upcoming games */}
+            {upcomingGames.length > 0 && (
               <div className="mb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                  <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Recommended Games
-                  </h4>
-                </div>
                 <div className="grid gap-4 md:grid-cols-2">
-                  {upcomingWithRecs.map((game) => (
-                    <GameCard key={game.game_id} game={game} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Upcoming games without recommendations */}
-            {upcomingWithoutRecs.length > 0 && (
-              <div className="mb-6">
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
-                  Other Upcoming Games
-                </h4>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {upcomingWithoutRecs.map((game) => (
+                  {upcomingGames.map((game) => (
                     <GameCard key={game.game_id} game={game} />
                   ))}
                 </div>
@@ -250,13 +203,7 @@ export default function WeeklyGamesTabs({ data }: WeeklyGamesTabsProps) {
             {/* Live games */}
             {liveGames.length > 0 && (
               <div className="mb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                  <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Live Games
-                  </h4>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2">
                   {liveGames.map((game) => (
                     <GameCard key={game.game_id} game={game} />
                   ))}
@@ -267,10 +214,14 @@ export default function WeeklyGamesTabs({ data }: WeeklyGamesTabsProps) {
             {/* Completed games */}
             {completedGames.length > 0 && (
               <div>
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
-                  Completed
-                </h4>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {upcomingGames.length > 0 && (
+                  <div className="mt-8 mb-4 border-t border-slate-200 pt-6">
+                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                      Final Scores
+                    </h4>
+                  </div>
+                )}
+                <div className="grid gap-4 md:grid-cols-2">
                   {completedGames.map((game) => (
                     <GameCard key={game.game_id} game={game} />
                   ))}

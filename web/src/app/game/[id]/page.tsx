@@ -228,30 +228,30 @@ export default async function GamePage({ params }: PageProps) {
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Betting Lines */}
         {game.odds && (
-          <section className="mb-8">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Betting Lines</h2>
-            <div className="bg-white rounded-xl border border-slate-200 p-6">
-              <div className="grid grid-cols-3 gap-6 text-center">
+          <section className="mb-6">
+            <h2 className="text-sm font-semibold text-slate-900 mb-3">Betting Lines</h2>
+            <div className="bg-white rounded-lg border border-slate-200 p-4">
+              <div className="grid grid-cols-3 gap-4 text-center">
                 {/* Spread */}
                 {game.odds.spread && (
                   <div>
-                    <div className="text-xs font-semibold text-slate-400 uppercase mb-3">Spread</div>
-                    <div className="space-y-2">
-                      <div className="p-3 bg-slate-50 rounded-lg">
-                        <div className="text-sm text-slate-600 mb-1">{game.home_team.abbreviation}</div>
-                        <div className="text-lg font-bold text-slate-900">
+                    <div className="text-xs font-medium text-slate-400 uppercase mb-2">Spread</div>
+                    <div className="space-y-1.5">
+                      <div className="p-2 bg-slate-50 rounded">
+                        <div className="text-xs text-slate-600">{game.home_team.abbreviation}</div>
+                        <div className="text-sm font-bold text-slate-900">
                           {game.odds.spread.home_line > 0 ? '+' : ''}{game.odds.spread.home_line}
                         </div>
-                        <div className="text-sm text-slate-400">
+                        <div className="text-xs text-slate-400">
                           {game.odds.spread.home_odds > 0 ? '+' : ''}{game.odds.spread.home_odds}
                         </div>
                       </div>
-                      <div className="p-3 bg-slate-50 rounded-lg">
-                        <div className="text-sm text-slate-600 mb-1">{game.away_team.abbreviation}</div>
-                        <div className="text-lg font-bold text-slate-900">
+                      <div className="p-2 bg-slate-50 rounded">
+                        <div className="text-xs text-slate-600">{game.away_team.abbreviation}</div>
+                        <div className="text-sm font-bold text-slate-900">
                           {game.odds.spread.away_line > 0 ? '+' : ''}{game.odds.spread.away_line}
                         </div>
-                        <div className="text-sm text-slate-400">
+                        <div className="text-xs text-slate-400">
                           {game.odds.spread.away_odds > 0 ? '+' : ''}{game.odds.spread.away_odds}
                         </div>
                       </div>
@@ -262,19 +262,19 @@ export default async function GamePage({ params }: PageProps) {
                 {/* Total */}
                 {game.odds.total && (
                   <div>
-                    <div className="text-xs font-semibold text-slate-400 uppercase mb-3">Total</div>
-                    <div className="space-y-2">
-                      <div className="p-3 bg-slate-50 rounded-lg">
-                        <div className="text-sm text-slate-600 mb-1">Over</div>
-                        <div className="text-lg font-bold text-slate-900">{game.odds.total.line}</div>
-                        <div className="text-sm text-slate-400">
+                    <div className="text-xs font-medium text-slate-400 uppercase mb-2">Total</div>
+                    <div className="space-y-1.5">
+                      <div className="p-2 bg-slate-50 rounded">
+                        <div className="text-xs text-slate-600">Over</div>
+                        <div className="text-sm font-bold text-slate-900">{game.odds.total.line}</div>
+                        <div className="text-xs text-slate-400">
                           {game.odds.total.over_odds > 0 ? '+' : ''}{game.odds.total.over_odds}
                         </div>
                       </div>
-                      <div className="p-3 bg-slate-50 rounded-lg">
-                        <div className="text-sm text-slate-600 mb-1">Under</div>
-                        <div className="text-lg font-bold text-slate-900">{game.odds.total.line}</div>
-                        <div className="text-sm text-slate-400">
+                      <div className="p-2 bg-slate-50 rounded">
+                        <div className="text-xs text-slate-600">Under</div>
+                        <div className="text-sm font-bold text-slate-900">{game.odds.total.line}</div>
+                        <div className="text-xs text-slate-400">
                           {game.odds.total.under_odds > 0 ? '+' : ''}{game.odds.total.under_odds}
                         </div>
                       </div>
@@ -285,17 +285,17 @@ export default async function GamePage({ params }: PageProps) {
                 {/* Moneyline */}
                 {game.odds.moneyline && (
                   <div>
-                    <div className="text-xs font-semibold text-slate-400 uppercase mb-3">Moneyline</div>
-                    <div className="space-y-2">
-                      <div className="p-3 bg-slate-50 rounded-lg">
-                        <div className="text-sm text-slate-600 mb-1">{game.home_team.abbreviation}</div>
-                        <div className="text-lg font-bold text-slate-900">
+                    <div className="text-xs font-medium text-slate-400 uppercase mb-2">Moneyline</div>
+                    <div className="space-y-1.5">
+                      <div className="p-2 bg-slate-50 rounded">
+                        <div className="text-xs text-slate-600">{game.home_team.abbreviation}</div>
+                        <div className="text-sm font-bold text-slate-900">
                           {game.odds.moneyline.home_odds > 0 ? '+' : ''}{game.odds.moneyline.home_odds}
                         </div>
                       </div>
-                      <div className="p-3 bg-slate-50 rounded-lg">
-                        <div className="text-sm text-slate-600 mb-1">{game.away_team.abbreviation}</div>
-                        <div className="text-lg font-bold text-slate-900">
+                      <div className="p-2 bg-slate-50 rounded">
+                        <div className="text-xs text-slate-600">{game.away_team.abbreviation}</div>
+                        <div className="text-sm font-bold text-slate-900">
                           {game.odds.moneyline.away_odds > 0 ? '+' : ''}{game.odds.moneyline.away_odds}
                         </div>
                       </div>
@@ -307,18 +307,105 @@ export default async function GamePage({ params }: PageProps) {
           </section>
         )}
 
-        {/* Recommendations */}
-        {game.recommendations.length > 0 && (
-          <section className="mb-10">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-              <h2 className="text-lg font-semibold text-slate-900">Betting Insights</h2>
-            </div>
-            <div className="space-y-4">
-              {game.recommendations.map((rec, idx) => (
-                <RecommendationCard key={idx} recommendation={rec} />
-              ))}
-            </div>
+        {/* ML Recommendation */}
+        {game.recommendations.length > 0 && game.recommendations[0] && (
+          <section className="mb-8">
+            <h2 className="text-sm font-semibold text-slate-900 mb-3">Model Prediction & Recommendation</h2>
+            {(() => {
+              const recommendation = game.recommendations[0];
+
+              // Extract model prediction from supporting_stats
+              const modelPrediction = recommendation.supporting_stats.find(
+                s => s.label === "Model prediction" || s.label === "Prediction"
+              )?.value || "";
+
+              // Extract probability if available
+              const probability = recommendation.supporting_stats.find(
+                s => s.label === "Probability"
+              )?.value || "";
+
+              // Extract expected value if available
+              const expectedValue = recommendation.supporting_stats.find(
+                s => s.label === "Expected Value"
+              )?.value || "";
+
+              return (
+                <div className="space-y-3">
+                  {/* Model Prediction Box */}
+                  {modelPrediction && (
+                    <div className="bg-white rounded-lg border border-slate-200 p-4">
+                      <div className="text-xs font-medium text-slate-500 mb-2">OUR MODEL PREDICTS</div>
+                      <div className="text-lg font-bold text-slate-900">{modelPrediction}</div>
+                      {(probability || expectedValue) && (
+                        <div className="flex gap-4 mt-2 text-xs">
+                          {probability && (
+                            <div className="text-slate-600">
+                              <span className="text-slate-400">Win Probability:</span> <span className="font-semibold">{probability}</span>
+                            </div>
+                          )}
+                          {expectedValue && (
+                            <div className="text-slate-600">
+                              <span className="text-slate-400">Expected Value:</span> <span className="font-semibold">{expectedValue}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Two-box ML Recommendation (same as home page) */}
+                  {recommendation.confidence !== "none" || recommendation.bet_type === "no_odds" ? (
+                    <div className="grid grid-cols-[1fr,auto] gap-3">
+                      {/* Bet Box */}
+                      <div className={`p-4 rounded-lg border ${
+                        recommendation.confidence === "high"
+                          ? "bg-emerald-50 border-emerald-200"
+                          : recommendation.confidence === "medium"
+                          ? "bg-amber-50 border-amber-200"
+                          : recommendation.confidence === "low"
+                          ? "bg-blue-50 border-blue-200"
+                          : "bg-slate-50 border-slate-200"
+                      }`}>
+                        <div className="text-xs font-medium text-slate-500 mb-2">
+                          {recommendation.confidence === "none" ? "MODEL LEAN" : "ML PICK"}
+                        </div>
+                        <div className={`text-base font-semibold ${
+                          recommendation.confidence === "high"
+                            ? "text-emerald-900"
+                            : recommendation.confidence === "medium"
+                            ? "text-amber-900"
+                            : recommendation.confidence === "low"
+                            ? "text-blue-900"
+                            : "text-slate-600"
+                        }`}>
+                          {recommendation.insight.startsWith("ODDS PENDING:")
+                            ? recommendation.insight.replace("ODDS PENDING: ", "")
+                            : recommendation.insight.split(" | ")[0]
+                          }
+                        </div>
+                      </div>
+
+                      {/* Confidence Box */}
+                      <div className={`p-4 rounded-lg border flex items-center justify-center min-w-[120px] ${
+                        recommendation.confidence === "high"
+                          ? "bg-emerald-500 border-emerald-600"
+                          : recommendation.confidence === "medium"
+                          ? "bg-amber-500 border-amber-600"
+                          : recommendation.confidence === "low"
+                          ? "bg-blue-500 border-blue-600"
+                          : "bg-slate-400 border-slate-500"
+                      }`}>
+                        <div className="text-center">
+                          <div className="text-white text-sm font-bold uppercase tracking-wide">
+                            {recommendation.confidence === "none" ? "Pending" : recommendation.confidence}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })()}
           </section>
         )}
 

@@ -14,9 +14,22 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200">
+    <div className="min-h-screen bg-slate-50 relative">
+      {/* Background Image */}
+      <div
+        className="fixed inset-0 z-0 opacity-5"
+        style={{
+          backgroundImage: 'url(/images/nba-basketball.png)',
+          backgroundRepeat: 'repeat',
+          backgroundSize: '300px',
+          backgroundPosition: 'center',
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Header */}
+        <header className="bg-white/95 backdrop-blur-sm border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-start justify-between">
             <div>
@@ -34,9 +47,9 @@ export default async function Home() {
             </p>
           </div>
         </div>
-      </header>
+        </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+        <main className="max-w-6xl mx-auto px-4 py-8">
         {error ? (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
             <p className="text-red-600 font-medium">Error: {error}</p>
@@ -47,14 +60,15 @@ export default async function Home() {
         ) : data ? (
           <WeeklyGamesTabs data={data} />
         ) : null}
-      </main>
+        </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white mt-12">
-        <div className="max-w-6xl mx-auto px-4 py-6 text-center text-sm text-slate-400">
-          NBAnalyzer · Not financial advice · Data from nba_api
-        </div>
-      </footer>
+        {/* Footer */}
+        <footer className="border-t border-slate-200 bg-white/95 backdrop-blur-sm mt-12">
+          <div className="max-w-6xl mx-auto px-4 py-6 text-center text-sm text-slate-400">
+            NBAnalyzer · Not financial advice · Data from nba_api
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }

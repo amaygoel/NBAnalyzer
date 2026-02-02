@@ -4,7 +4,7 @@ export interface Recommendation {
   bet_type: string;
   subject: string;
   insight: string;
-  confidence: "high" | "medium" | "low";
+  confidence: "high" | "medium" | "low" | "none";
   supporting_stats: { label: string; value: string }[];
 }
 

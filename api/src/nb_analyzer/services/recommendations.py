@@ -8,17 +8,19 @@ from sqlalchemy.orm import Session
 from nb_analyzer.models import Game, Team, GameOdds
 from nb_analyzer.services.team_analysis import TeamAnalysisService, Record
 from nb_analyzer.services.standings import StandingsService
+from nb_analyzer.services.ml_recommendation_service import MLRecommendationService
+from nb_analyzer.ml.bet_selector import BetRecommendation
 
 
 @dataclass
 class Recommendation:
     """A betting recommendation with supporting evidence."""
     game_id: int
-    bet_type: str  # "moneyline", "spread", "total"
+    bet_type: str  # "moneyline", "spread", "total", "no_odds", "no_bet"
     subject: str  # Team name
     subject_abbrev: str
     insight: str  # Main recommendation text
-    confidence: str  # "high", "medium"
+    confidence: str  # "high", "medium", "low", "none"
     supporting_stats: list[dict]  # List of supporting evidence
 
 
@@ -35,6 +37,7 @@ class RecommendationService:
         self.db = db
         self.team_analysis = TeamAnalysisService(db)
         self.standings = StandingsService(db)
+        self.ml_service = MLRecommendationService(db)
 
     @staticmethod
     def _american_to_implied_probability(odds: int) -> float:
@@ -402,14 +405,28 @@ class RecommendationService:
             home_team = self.team_analysis.get_team_by_id(game.home_team_id)
             away_team = self.team_analysis.get_team_by_id(game.away_team_id)
 
-            recs = self.generate_recommendations_for_game(game)
+            # Only generate recommendations for upcoming games
+            recs = [] if game.is_completed else self.generate_ml_recommendations(game)
+            # Only get odds for upcoming games
+            odds = None if game.is_completed else self._get_game_odds(game)
 
-            result["games"].append({
+            # Get team records from current standings
+            home_record = self.standings.get_team_record(game.home_team_id)
+            away_record = self.standings.get_team_record(game.away_team_id)
+
+            game_data = {
                 "game_id": game.id,
+                "date": game.date.isoformat(),
+                "game_time": game.game_time.isoformat() + "Z" if game.game_time else None,
                 "home_team": home_team.abbreviation if home_team else "UNK",
                 "away_team": away_team.abbreviation if away_team else "UNK",
                 "home_team_name": home_team.name if home_team else "Unknown",
                 "away_team_name": away_team.name if away_team else "Unknown",
+                "home_record": home_record,
+                "away_record": away_record,
+                "is_completed": game.is_completed,
+                "home_score": game.home_score,
+                "away_score": game.away_score,
                 "recommendations_count": len(recs),
                 "recommendations": [
                     {
@@ -421,7 +438,13 @@ class RecommendationService:
                     }
                     for r in recs
                 ],
-            })
+            }
+
+            # Add odds if available
+            if odds:
+                game_data["odds"] = odds
+
+            result["games"].append(game_data)
 
         # Sort games by number of recommendations (most first)
         result["games"].sort(key=lambda g: -g["recommendations_count"])
@@ -469,7 +492,8 @@ class RecommendationService:
                 away_team = self.team_analysis.get_team_by_id(game.away_team_id)
 
                 # Only generate recommendations for upcoming games
-                recs = [] if game.is_completed else self.generate_focused_recommendations(game)
+                # Use ML-based recommendations by default
+                recs = [] if game.is_completed else self.generate_ml_recommendations(game)
                 # Only get odds for upcoming games
                 odds = None if game.is_completed else self._get_game_odds(game)
 
@@ -667,3 +691,191 @@ class RecommendationService:
         # For now, skip totals - will add after implementing scoring analysis
 
         return recommendations
+
+    def generate_ml_recommendations(self, game: Game) -> list[Recommendation]:
+        """
+        Generate ML-based recommendations using margin prediction model.
+
+        Returns exactly ONE recommendation per game (or empty list if game invalid).
+
+        Args:
+            game: Game to generate recommendation for
+
+        Returns:
+            List with single Recommendation object (or empty if error)
+        """
+        home_team = self.team_analysis.get_team_by_id(game.home_team_id)
+        away_team = self.team_analysis.get_team_by_id(game.away_team_id)
+
+        if not home_team or not away_team:
+            return []
+
+        # Get ML recommendation
+        ml_rec = self.ml_service.generate_ml_recommendation(game)
+
+        # Convert to API Recommendation schema
+        api_rec = self._map_ml_to_api_recommendation(ml_rec, home_team, away_team)
+
+        return [api_rec] if api_rec else []
+
+    def _map_ml_to_api_recommendation(
+        self,
+        ml_rec: BetRecommendation,
+        home_team: Team,
+        away_team: Team
+    ) -> Recommendation | None:
+        """
+        Map ML BetRecommendation to API Recommendation schema.
+
+        Args:
+            ml_rec: ML recommendation from bet selector
+            home_team: Home team object
+            away_team: Away team object
+
+        Returns:
+            Recommendation object or None if no odds
+        """
+        # Handle NO_ODDS case
+        if ml_rec.confidence_tier == "NO_ODDS":
+            pred_str = self._format_margin(ml_rec.pred_margin, home_team, away_team)
+            return Recommendation(
+                game_id=ml_rec.game.id,
+                bet_type="no_odds",
+                subject="No odds available",
+                subject_abbrev="N/A",
+                insight=f"ODDS PENDING: Model leans {pred_str}",
+                confidence="none",
+                supporting_stats=[
+                    {"label": "Status", "value": "NO_ODDS"},
+                    {"label": "Model prediction", "value": pred_str},
+                ]
+            )
+
+        # Handle NO_BET case (odds exist but no actionable bet)
+        if ml_rec.confidence_tier == "NO_BET":
+            # Show best overall as context
+            if ml_rec.best_overall:
+                bet = ml_rec.best_overall
+                team = home_team if bet.side == 'home' else away_team
+
+                return Recommendation(
+                    game_id=ml_rec.game.id,
+                    bet_type="no_bet",
+                    subject=team.name,
+                    subject_abbrev=team.abbreviation,
+                    insight=f"NO BET: Model lean {team.abbreviation} but below confidence threshold",
+                    confidence="low",
+                    supporting_stats=[
+                        {"label": "Status", "value": "NO_BET"},
+                        {"label": "Best lean", "value": self._format_bet(bet, team)},
+                        {"label": "Probability", "value": f"{bet.probability:.1%}"},
+                        {"label": "EV", "value": f"{bet.ev:.1%}"},
+                        {"label": "Reason", "value": "Below threshold"},
+                    ]
+                )
+
+            # No bet and no candidates
+            return Recommendation(
+                game_id=ml_rec.game.id,
+                bet_type="no_bet",
+                subject="No actionable bet",
+                subject_abbrev="N/A",
+                insight="NO BET: No opportunities meeting criteria",
+                confidence="low",
+                supporting_stats=[
+                    {"label": "Status", "value": "NO_BET"},
+                ]
+            )
+
+        # Actionable bet exists (HIGH/MEDIUM/LOW)
+        bet = ml_rec.best_bet
+        team = home_team if bet.side == 'home' else away_team
+
+        # Format insight based on bet type
+        pred_str = self._format_margin(ml_rec.pred_margin, home_team, away_team)
+        bet_str = self._format_bet(bet, team)
+
+        if bet.market == 'moneyline':
+            # For ML: show win probability and ML odds
+            ml_odds_home = ml_rec.consensus_odds.ml_odds_home
+            ml_odds_away = ml_rec.consensus_odds.ml_odds_away
+            if bet.side == 'home':
+                market_ml = f"{team.abbreviation} {ml_odds_home:+d}" if ml_odds_home else "N/A"
+            else:
+                market_ml = f"{team.abbreviation} {ml_odds_away:+d}" if ml_odds_away else "N/A"
+            insight = f"{bet_str} | Model win prob: {bet.probability:.1%} | Market ML: {market_ml}"
+        else:
+            # For spread: show model prediction vs market spread
+            market_str = self._format_market_line(ml_rec.consensus_odds, home_team, away_team)
+            insight = f"{bet_str} | Model: {pred_str} | Market spread: {market_str}"
+
+        # Map confidence tier to API confidence
+        api_confidence = self._map_confidence_tier(ml_rec.confidence_tier)
+
+        # Build supporting stats
+        supporting_stats = [
+            {"label": "Recommendation", "value": bet_str},
+            {"label": "Confidence", "value": ml_rec.confidence_tier},
+            {"label": "Probability", "value": f"{bet.probability:.1%}"},
+            {"label": "Expected Value", "value": f"{bet.ev:.1%}"},
+            {"label": "Model prediction", "value": pred_str},
+            {"label": "Market spread", "value": self._format_market_line(ml_rec.consensus_odds, home_team, away_team)},
+            {"label": "Sigma", "value": f"{ml_rec.sigma:.1f} pts"},
+        ]
+
+        # Add spread info if spread bet
+        if bet.market == 'spread' and bet.line is not None:
+            supporting_stats.append({"label": "Line", "value": f"{bet.line:+.1f}"})
+
+        return Recommendation(
+            game_id=ml_rec.game.id,
+            bet_type=bet.market,
+            subject=team.name,
+            subject_abbrev=team.abbreviation,
+            insight=insight,
+            confidence=api_confidence,
+            supporting_stats=supporting_stats
+        )
+
+    @staticmethod
+    def _format_margin(margin: float, home_team: Team, away_team: Team) -> str:
+        """Format predicted margin as readable string with explicit sign."""
+        if margin > 0:
+            return f"{home_team.abbreviation} by {margin:+.1f}"
+        elif margin < 0:
+            return f"{away_team.abbreviation} by {abs(margin):.1f}"
+        else:
+            return "Even"
+
+    @staticmethod
+    def _format_market_line(consensus_odds, home_team: Team, away_team: Team) -> str:
+        """Format market spread line."""
+        if consensus_odds.spread_line_home is None:
+            return "N/A"
+
+        if consensus_odds.spread_line_home < 0:
+            return f"{home_team.abbreviation} {consensus_odds.spread_line_home:.1f}"
+        elif consensus_odds.spread_line_home > 0:
+            return f"{away_team.abbreviation} {-consensus_odds.spread_line_home:.1f}"
+        else:
+            return "PK"
+
+    @staticmethod
+    def _format_bet(bet, team: Team) -> str:
+        """Format bet description."""
+        if bet.market == 'spread':
+            return f"{team.abbreviation} {bet.line:+.1f} @ {bet.odds:+d}"
+        else:
+            return f"{team.abbreviation} ML @ {bet.odds:+d}"
+
+    @staticmethod
+    def _map_confidence_tier(tier: str) -> str:
+        """Map ML confidence tier to API confidence level."""
+        if tier == "HIGH":
+            return "high"
+        elif tier == "MEDIUM":
+            return "medium"
+        elif tier == "NO_ODDS":
+            return "none"
+        else:
+            return "low"

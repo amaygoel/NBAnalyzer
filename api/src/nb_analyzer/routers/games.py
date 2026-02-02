@@ -73,8 +73,8 @@ def get_game_details(game_id: int, db: Session = Depends(get_db)):
     # Get full insights
     insights = team_service.get_game_insights(game.home_team_id, game.away_team_id)
 
-    # Get focused, value-based recommendations
-    recommendations = rec_service.generate_focused_recommendations(game)
+    # Get ML-based recommendations
+    recommendations = rec_service.generate_ml_recommendations(game)
 
     # Get odds
     odds = rec_service._get_game_odds(game)
@@ -125,7 +125,7 @@ def get_game_recommendations(game_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Game not found")
 
     rec_service = RecommendationService(db)
-    recommendations = rec_service.generate_recommendations_for_game(game)
+    recommendations = rec_service.generate_ml_recommendations(game)
 
     home_team = db.query(Team).filter(Team.id == game.home_team_id).first()
     away_team = db.query(Team).filter(Team.id == game.away_team_id).first()
