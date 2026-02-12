@@ -21,6 +21,13 @@ Cron doesn't have proper permissions on modern macOS to execute scripts or write
 - Updates game scores and results
 - Runs continuously every 20 minutes
 
+### 4. Weekly Model Retraining (Sunday 3 AM)
+**File:** `~/Library/LaunchAgents/com.nba-analyzer.retrain.plist`
+- Retrains XGBoost ML model with all completed games
+- Incorporates new game data from the past week
+- Takes 5-10 minutes to complete
+- Runs every Sunday at 3:00 AM
+
 ## Logs
 All output is written to:
 - `~/logs/nba-analyzer/daily.log`
@@ -29,6 +36,8 @@ All output is written to:
 - `~/logs/nba-analyzer/odds-error.log`
 - `~/logs/nba-analyzer/scores.log`
 - `~/logs/nba-analyzer/scores-error.log`
+- `~/logs/nba-analyzer/retrain.log`
+- `~/logs/nba-analyzer/retrain-error.log`
 
 ## Managing LaunchAgents
 
@@ -47,6 +56,9 @@ launchctl start com.nba-analyzer.odds
 
 # Run score update now
 launchctl start com.nba-analyzer.scores
+
+# Run model retraining now (takes 5-10 minutes)
+launchctl start com.nba-analyzer.retrain
 ```
 
 ### Stop/Unload Agent
@@ -54,6 +66,7 @@ launchctl start com.nba-analyzer.scores
 launchctl unload ~/Library/LaunchAgents/com.nba-analyzer.daily.plist
 launchctl unload ~/Library/LaunchAgents/com.nba-analyzer.odds.plist
 launchctl unload ~/Library/LaunchAgents/com.nba-analyzer.scores.plist
+launchctl unload ~/Library/LaunchAgents/com.nba-analyzer.retrain.plist
 ```
 
 ### Reload After Changes
@@ -65,6 +78,7 @@ launchctl unload ~/Library/LaunchAgents/com.nba-analyzer.*.plist
 launchctl load ~/Library/LaunchAgents/com.nba-analyzer.daily.plist
 launchctl load ~/Library/LaunchAgents/com.nba-analyzer.odds.plist
 launchctl load ~/Library/LaunchAgents/com.nba-analyzer.scores.plist
+launchctl load ~/Library/LaunchAgents/com.nba-analyzer.retrain.plist
 ```
 
 ### View Recent Logs
@@ -109,6 +123,7 @@ launchctl unload ~/Library/LaunchAgents/com.nba-analyzer.*.plist
 launchctl load ~/Library/LaunchAgents/com.nba-analyzer.daily.plist
 launchctl load ~/Library/LaunchAgents/com.nba-analyzer.odds.plist
 launchctl load ~/Library/LaunchAgents/com.nba-analyzer.scores.plist
+launchctl load ~/Library/LaunchAgents/com.nba-analyzer.retrain.plist
 ```
 
 ## After System Restart

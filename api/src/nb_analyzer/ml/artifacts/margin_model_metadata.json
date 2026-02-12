@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-01-29T13:25:39.951091",
+  "trained_at": "2026-02-12T13:52:45.989981",
   "feature_columns": [
     "home_win_pct_to_date",
     "away_win_pct_to_date",

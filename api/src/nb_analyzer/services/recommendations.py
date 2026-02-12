@@ -452,15 +452,20 @@ class RecommendationService:
         return result
 
     def get_weekly_recommendations(self, days: int = 7) -> dict:
-        """Get all recommendations for the next N days, grouped by date."""
+        """
+        Get all recommendations for the next N days that have games, grouped by date.
+
+        Returns the next N days with scheduled games, regardless of calendar gaps
+        (e.g., during All-Star break, playoffs, etc.)
+        """
         from datetime import timedelta
 
         today = date.today()
-        end_date = today + timedelta(days=days - 1)
 
+        # Get all upcoming games
         games = (
             self.db.query(Game)
-            .filter(Game.date >= today, Game.date <= end_date)
+            .filter(Game.date >= today)
             .order_by(Game.date)
             .all()
         )
@@ -472,10 +477,20 @@ class RecommendationService:
                 games_by_date[game.date] = []
             games_by_date[game.date].append(game)
 
+        # Get the first N dates that have games
+        dates_with_games = sorted(games_by_date.keys())[:days]
+
+        # Filter to only include those dates
+        games_by_date = {d: games_by_date[d] for d in dates_with_games}
+
+        # Calculate end date based on actual dates returned
+        end_date = dates_with_games[-1] if dates_with_games else today
+        total_games = sum(len(games_by_date[d]) for d in dates_with_games)
+
         result = {
             "start_date": today.isoformat(),
             "end_date": end_date.isoformat(),
-            "total_games": len(games),
+            "total_games": total_games,
             "days": [],
         }
 
